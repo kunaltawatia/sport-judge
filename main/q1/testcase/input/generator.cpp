@@ -3,12 +3,12 @@ using namespace std;
 
 int main()
 {
-	fstream fout("input00.txt");
-	int n=50;
+	fstream fout("input4.txt");
+	int n=1000;
 	fout<<n<<endl;
 	for(int i=0;i<n;i++){
 	for(int j=0;j<n;j++)	
-	fout<<rand()%2<<" ";
+	fout<<"0";
 	fout<<endl;
 	}
 	fout.close();

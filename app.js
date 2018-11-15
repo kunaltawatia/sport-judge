@@ -30,7 +30,6 @@ function splitstring(codeurl)
 		tot_test : cons[1] ,
 		origin : codeurl  
 	};
-	console.log(ret);
 	return ret;
 }
 function step(i,tot_test,name,res)
@@ -38,18 +37,45 @@ function step(i,tot_test,name,res)
 	if(i<tot_test){
 		var infile = name.input + 'input'+i+'.txt';
 		var outfile = name.origin + 'output'+ i +'.txt';
-		exec('cat '+infile+' | timeout '+name.timelt+' '+name.origin+' > '+ outfile,(err,stdout,stderr)=>{
-			console.log(outfile + ' writen');
+		var tym = Date.now(); 
+		exec('cat '+infile+' | timeout '+name.timelt+' '+name.origin+' > '+ outfile,(err,stdout,stderr)=>{ 
+			var timeused =Date.now()-tym;
+			res.write('testcase '+i+': ');
+			res.write('(' + timeused+' ms)');
+			if(timeused > name.timelt * 1000)
+			{	
+				res.write(' TLE\n');
+				return res.end();
+			}
+			if(err)
+				{
+					res.write(`${stderr}`);
+					return res.end();
+				}
+			var ansfile = name.output + 'ans' + i +'.txt';
+			exec(name.output +'checker '+ansfile + ' ' +outfile ,(err,stdout,stderr)=>{
+				if(err)
+					console.log(' '+`${stderr}`);	
+				var ans = `${stdout}`;
+				if(ans == 0)
+				{
+					res.write(' AC\n');
+					step(i+1,tot_test,name,res);
+				}
+				else 
+				{
+					res.write(' WA\n');
+					return res.end();
+				}
+				});
 		});
-		step(i+1,tot_test,name,res);
 	}
-	else return;
+	else return res.end();
 }
-function compile(codefile,res)
+function compile(name,res)
 {
-		var name = splitstring(codefile);
-		res.write('Runtime result:\n');
-		step(0,name.tot_test,name,res);
+	res.write('Runtime result:\n');
+	step(0,name.tot_test,name,res);
 }
 http.createServer(function (req, res) 
 {
@@ -71,8 +97,13 @@ http.createServer(function (req, res)
   		var form = new formidable.IncomingForm();
 		form.parse(req, function (err, fields, files) 
 			{
+				if(! files.code)
+				{
+					res.write("Code not found !");
+					return res.end();
+				}
       			var oldpath = files.code.path;
-				var newpath = files.code.name;
+      			var newpath = files.code.name;
 			    var flag = typecheck(newpath);
 			    if(flag==3)
 			    {
@@ -97,14 +128,15 @@ http.createServer(function (req, res)
 							res.write(`${stdout}`+ '\n') ;
 							if (err) 
 							{
-								res.write(`${stderr}`);
+								var error = `${stderr}`;
+								res.write( error + '\nCompilation failed !');
 								return res.end();
 							}
 							else
 							{
 								res.write('Successfully Compiled !\n\n');
-								compile(codefile,res);
-								res.end();
+								var name = splitstring(codefile);
+								compile(name,res);
 							}
 						});
 			       });
