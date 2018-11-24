@@ -1,0 +1,3 @@
+Rank	           Username	 A	 B	 C	 D	Total
+
+1	WeBugINC.           	150	50 	200	100	500

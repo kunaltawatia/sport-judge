@@ -1,72 +1,63 @@
-<!DOCTYPE html>
-<html>
+<div>
+<img src="design/image01.jpg"  width = 100% align = "middle">
+<h1 style="color: #993300; font-size: 42.0pt; text-align: center;">WeBug Codzera</h1>
 
-<head>
-  <meta charset="utf-8">
-  <title>undefined</title>
-  <meta name="generator" content="Google Web Designer 4.2.0.0802">
-  <style type="text/css" id="gwd-text-style">
-    p {
-      margin: 0px;
-    }
-    h1 {
-      margin: 0px;
-    }
-    h2 {
-      margin: 0px;
-    }
-    h3 {
-      margin: 0px;
-    }
-  </style>
-  <style type="text/css">
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0px;
-    }
-    body {
-      background-color: transparent;
-      transform: perspective(1400px) matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-      transform-style: preserve-3d;
-    }
-    .gwd-h1-1u19 {
-      position: absolute;
-      width: 269px;
-      left: 16px;
-      top: 14px;
-      height: 34px;
-      transform-origin: 179.503px 42.3333px 0px;
-      text-align: center;
-      background-image: none;
-      border-image-source: none;
-      border-image-width: initial;
-      border-image-outset: initial;
-      border-image-repeat: initial;
-      border-color: rgb(0, 0, 0);
-      background-color: transparent;
-      font-family: Lobster;
-      font-style: italic;
-    }
-    .gwd-h1-1h4p {
-      position: absolute;
-      left: 17px;
-      top: 68px;
-      font-family: "Indie Flower";
-    }
-    .gwd-p-1m2v {
-      position: absolute;
-      left: 19px;
-      top: 106px;
-      font-family: "Indie Flower";
-    }
-  </style>
-  <link href="https://fonts.googleapis.com/css?family=Indie+Flower:400|Lobster:400" rel="stylesheet" type="text/css">
-</head>
 
-<body class="htmlNoPages">
-  <h1 class="gwd-h1-1u19">October CodeNight</h1>
-  <p class="gwd-h1-1h4p" ><a href="main/q1.html">Problem A: Black Obstacles</p>
-  <p class="gwd-p-1m2v"><a href="main/q2.html">Problem B: XORit!</p>
-</body>
-</html>
+
+<script>
+
+var countDownDate = new Date("Nov 25, 2018 0:0:0").getTime();
+
+var x = setInterval(function() {
+
+    // Get todays date and time
+    var now = new Date().getTime();
+    
+    // Find the distance between now and the count down date
+    var distance = countDownDate - now;
+    
+    // Time calculations for days, hours, minutes and seconds
+    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    // Output the result in an element with id="demo"
+    document.getElementById("demo").innerHTML = hours + "h "
+    + minutes + "m " + seconds + "s ";
+    
+    // If the count down is over, write some text 
+    if (distance < 0) {
+        clearInterval(x);
+        document.getElementById("demo").innerHTML = "EXPIRED";
+    }
+}, 1000);
+</script>
+
+<p style="text-align: right;"><span style="color: #993300;"><strong><span style="text-decoration: underline;"><em><br /><a href="standings">Live standings</a></em></span></strong></span><br><strong>Contest ends in : </strong><style="text-align: right;" id="demo"></style></p>
+<p style="text-align: right;" id="demo"></p>
+<table style="width: 289px; height: 170px; margin-left: auto; margin-right: auto;" border="5" cellspacing="1" cellpadding="1">
+<tbody>
+<tr>
+<td style="text-align: center; width: 198px;"><span style="color: #000080;"><strong>Question</strong></span></td>
+<td style="text-align: center; width: 70px;"><em><strong>Points</strong></em></td>
+</tr>
+<tr>
+<td style="width: 198px; text-align: center;"><a href="main/q1.html">&nbsp;Black Obstacles</a></td>
+<td style="width: 70px; text-align: center;">150</td>
+</tr>
+<tr>
+<td style="width: 198px; text-align: center;"><a href="main/q2.html">XORit !</a></td>
+<td style="width: 70px; text-align: center;">50</td>
+</tr>
+<tr>
+<td style="width: 198px; text-align: center;"><a href="main/q3.html">Rank some stones</a></td>
+<td style="width: 70px; text-align: center;">200</td>
+</tr>
+<tr>
+<td style="width: 198px; text-align: center;"><a href="main/q4.html">ScoreKeeping</a></td>
+<td style="width: 70px; text-align: center;">100</td>
+</tr>
+</tbody>
+</table>
+</div>

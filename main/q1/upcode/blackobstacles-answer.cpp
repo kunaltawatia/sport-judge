@@ -3,7 +3,7 @@ using namespace std;
 typedef long long ll;
 
 ll n,ans;
-vector<vector<ll> > obstacles;
+vector<vector<ll>> obstacles;
 
 void solve (ll a,ll b)
 {
@@ -14,7 +14,7 @@ void solve (ll a,ll b)
 	}
 	ll sz= (a+b)/2;
 	ll mn= 2147483647,height=n-sz+1,length=n-sz+1,i,j,index;
-	vector<vector<ll> > arr(n,vector<ll>(n,0));
+	vector<vector<ll>> arr(n,vector<ll>(n,0));
 	for(i=0;i<n;i++)
 	{
 		ll k=obstacles[i].size()-1,count=0,qsz =0;

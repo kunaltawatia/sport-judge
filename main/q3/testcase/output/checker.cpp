@@ -8,15 +8,8 @@ int main(int argc,char * argv[])
 	ll n1,n2;
 	while((ans>>n1))
 	{
-		if((out>>n2))
-		{
-			if(n1 != n2)
-				{
-					cout<<1;
-					return 0;
-				}
-		}
-		else
+		out>>n2;
+		if(n1 != n2)
 		{
 			cout<<1;
 			return 0;

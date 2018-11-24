@@ -19,7 +19,15 @@ This shows the board after Rohan's younger brother spoils the board.</p>
    <p style="text-align: center;"><strong>Submit code:</strong></p>
    <div>
       <form action="q1/upcode" enctype="multipart/form-data" method="post">
-      	<input name="code" type="file" /> <input type="submit" />
+         <input type="file" name="code" />
+         <label >Language: <span  title="This field is required.">*</span></label>
+         <select name="language">
+         <option value="1">C</option>
+         <option value="2" selected="selected">C++14</option>
+         <option value="3">Python</option>
+         <option value="4"> Header File</option>
+         </select>
+         <input type="submit" />
       	<input type="reset" value="Refresh" />
       </form>
    </div>

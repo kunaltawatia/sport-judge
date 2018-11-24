@@ -1,25 +1,30 @@
 var http = require('http');
 var formidable = require('formidable');
 var fs = require('fs');
-var url = require('url');
+var url = require('url'); 
+var c_cpp_compiler = require ('./c_cpp_compile');
+var py_compile = require ('./py_compile'); 
 const { exec }= require ('child_process');
 
 function typecheck(name)
 {
-	var str=name.slice(name.lastIndexOf('.'),name.length);
-	switch(str)
+	name = name.slice(name.lastIndexOf('.')+1,name.length);
+	switch(name)
 	{
-		case '.cpp' : return 1;
-		case '.c' : return 2;
-		case '.h' : return 3;
-		default : return 0;
-	}
+		case 'cpp': return 2;
+		case 'c': return 1;
+		case 'py': return 3;
+		case 'h': return 4;
+		default: return 0;
+	} 
 }
 function splitstring(codeurl)
 {
 	var res = codeurl.split('/');
 	var str = fs.readFileSync('./main/' + res[2] + '/testcase/input/cons.txt' ,'utf8');
+	var str1 = fs.readFileSync('./main/' + res[2] + '/testcase/input/scoring.txt' ,'utf8');
 	var cons = str.split('\n');
+	var scr = str1.split('\n');
 	var ret={
 		main : res[1],
 		question :res[2],
@@ -28,136 +33,148 @@ function splitstring(codeurl)
 		output : './main/' + res[2] + '/testcase/output/' ,
 		timelt : cons[0] , 
 		tot_test : cons[1] ,
+		min_testcase : scr[0] ,
+		owner: '',        
+		initialtitle: '',
 		origin : codeurl  
 	};
 	return ret;
 }
-function step(i,tot_test,name,res)
+function checkip(ipaddr)
 {
-	if(i<tot_test){
-		var infile = name.input + 'input'+i+'.txt';
-		var outfile = name.origin + 'output'+ i +'.txt';
-		var tym = Date.now(); 
-		exec('cat '+infile+' | timeout '+name.timelt+' '+name.origin+' > '+ outfile,(err,stdout,stderr)=>{ 
-			var timeused =Date.now()-tym;
-			res.write('testcase '+i+': ');
-			res.write('(' + timeused+' ms)');
-			if(timeused > name.timelt * 1000)
-			{	
-				res.write(' TLE\n');
-				return res.end();
-			}
-			if(err)
-				{
-					res.write(`${stderr}`);
-					return res.end();
-				}
-			var ansfile = name.output + 'ans' + i +'.txt';
-			exec(name.output +'checker '+ansfile + ' ' +outfile ,(err,stdout,stderr)=>{
-				if(err)
-					console.log(' '+`${stderr}`);	
-				var ans = `${stdout}`;
-				if(ans == 0)
-				{
-					res.write(' AC\n');
-					step(i+1,tot_test,name,res);
-				}
-				else 
-				{
-					res.write(' WA\n');
-					return res.end();
-				}
-				});
-		});
-	}
-	else return res.end();
-}
-function compile(name,res)
-{
-	res.write('Runtime result:\n');
-	step(0,name.tot_test,name,res);
+	exec ('./checkip '+ipaddr,(err,stdout,stderr)=>
+	{
+		return `${stdout}`;
+	});
 }
 http.createServer(function (req, res) 
 {
- 	var q = url.parse(req.url, true);
+	var q = url.parse(req.url, true);
 	var page = '.'+q.pathname;
-	if(page == './')
-  		fs.readFile('main.html',function(err,data){
-  			if (err) 
-			{
-		      res.writeHead(404, {'Content-Type': 'text/html'});
-		      return res.end("404 Not Found");
-		    }  
-			res.writeHead(200, {'Content-Type': 'text/html'});
-			res.write(data);
+	var ipaddr = (req.connection.remoteAddress);
+	ipaddr = ipaddr.slice(ipaddr.lastIndexOf(':')+1,ipaddr.length);
+	if(page.endsWith('upuser'))
+	{
+		var form = new formidable.IncomingForm();
+		form.parse(req,function (err, fields, files) 
+		{
+			exec('./reguser '+fields.handler+ ' '+ipaddr);
+			res.writeHead(302, {
+				'Content-Type': 'text/plain',
+				'Location': '/'});
 			res.end();
-  		});
-  	else if(page.endsWith('upcode'))
-  	{
-  		var form = new formidable.IncomingForm();
-		form.parse(req, function (err, fields, files) 
+		});
+	}
+	else
+	{
+		var isuser ;//= checkip(ipaddr);
+		exec ('./checkip '+ipaddr,(err,stdout,stderr)=>
+		{
+			isuser = `${stdout}`;
+			if(isuser)
 			{
-				if(! files.code)
-				{
-					res.write("Code not found !");
-					return res.end();
-				}
-      			var oldpath = files.code.path;
-      			var newpath = files.code.name;
-			    var flag = typecheck(newpath);
-			    if(flag==3)
-			    {
-			    	fs.rename(oldpath,page +'/'+ newpath, function (err)
-			    	{
-			    		if(err) throw err;
-				       	res.write('Header File uploaded and ready to use please go back to submit your code!\n');
-				    	res.end();
-			    	});
-			    }
-				else if(flag)
-				{
-			      fs.rename(oldpath,page +'/'+ newpath, function (err)
-			       {
-				        if (err) throw err;
-				       	res.write('File uploaded and moved!\n');
-				       	var str = page +'/'+ newpath;
-				       	var codefile = str.slice(0,str.lastIndexOf('.'));
-				       	exec('make '+codefile , (err, stdout, stderr) => 
-				       	{		
-							res.write('Compilation result:\n');
-							res.write(`${stdout}`+ '\n') ;
-							if (err) 
+				req.user = isuser;
+				//console.log(isuser);
+				if(page == './')
+			  		fs.readFile('main.html',function(err,data)
+			  		{
+			  			if (err) 
+						{
+					      res.writeHead(404, {'Content-Type': 'text/html'});
+					      return res.end("404 Not Found");
+					    }  
+						res.writeHead(200, {'Content-Type': 'text/html'});
+						res.write(data);
+						res.write('<p style="text-align : center;">Welcome '+req.user +'</p>');
+						res.end();
+			  		});
+			  	else if(page.endsWith('standings'))
+			  	{
+			  		exec('cat standings.txt',(err,stdout,stderr)=>{
+			  			res.writeHead(200, {'Content-Type': 'text/plain-text'});
+			  			
+			  			res.write(`${stdout}`);
+			  			res.end();
+			  		});
+			  	}
+			  	else if(page.endsWith('upcode'))
+			  	{
+			  		var form = new formidable.IncomingForm();
+			  		//console.log(form);
+					form.parse(req,function (err, fields, files) 
+						{
+							//console.log(files.code);
+							if(!files.code.size)
 							{
-								var error = `${stderr}`;
-								res.write( error + '\nCompilation failed !');
+								res.write("Code not found !");
 								return res.end();
 							}
+			      			var oldpath = files.code.path;
+			      			var newpath = files.code.name;
+						    var flag = fields.language;
+							var str = page +'/'+ newpath;
+							var codefile = str.slice(0,str.lastIndexOf('.'));
+							var name = splitstring(codefile);
+							var ipaddr = (req.connection.remoteAddress);
+							name.owner = ipaddr.slice(ipaddr.lastIndexOf(':')+1,ipaddr.length);
+							name.initialtitle = str;
+							//console.log(name.owner);
+							if(flag && flag < 4)
+							{		
+						       fs.rename(oldpath,page +'/'+ newpath, function (err)
+						       {
+							        if (err) throw err;
+							       	res.write('File uploaded and moved!\n');
+							       	if(flag<3) c_cpp_compiler.compile(name,res,codefile,flag);
+									else py_compile.compile(name,res);
+						       });
+							}
+							else if(flag==4)
+						    {
+						    	fs.rename(oldpath,page +'/'+ newpath, function (err)
+						    	{
+						    		if(err) throw err;
+							       	res.write('Header File uploaded and ready to use please go back to submit your code!\n');
+							    	res.end();
+						    	});
+						    }
 							else
 							{
-								res.write('Successfully Compiled !\n\n');
-								var name = splitstring(codefile);
-								compile(name,res);
+								res.writeHead(200, {'Content-Type': 'text/html'});
+								res.write('<p text-align=center;>Code file is to be passed, go back</p>');
+								res.end();
 							}
 						});
-			       });
-				}
-				else
-				{
-					res.writeHead(200, {'Content-Type': 'text/html'});
-					res.write('<p>*.c or *.cpp file is to be passed, go back</p>');
-					res.end();
-				}
-			});
-  	}
-  	else 
-  		fs.readFile(page,function(err,data){
-  			if (err) 
+			  	}
+			  	else {
+			  		page=page.slice(0,page.lastIndexOf('.'));
+			  		fs.readFile(page+'.html',function(err,data){
+			  			if (err) 
+						{
+					      res.writeHead(404,{'Content-Type': 'text/html'});
+					      return res.end("404 Not Found");
+					    }  
+						res.writeHead(200,{'Content-Type': 'text/html'});
+						res.write(data);
+						res.end();
+			  		});
+			  	}
+			}
+			else
 			{
-		      res.writeHead(404, {'Content-Type': 'text/html'});
-		      return res.end("404 Not Found");
-		    }  
-			res.writeHead(200, {'Content-Type': 'text/html'});
-			res.write(data);
-	res.end();
-  		});
+				//console.log(ipaddr);
+				fs.readFile('newuser.html',function(err,data){
+			  			if (err) 
+						{
+					      res.writeHead(404,{'Content-Type': 'text/html'});
+					      return res.end("404 Not Found");
+					    }  
+						res.writeHead(200,{'Content-Type': 'text/html'});
+						res.write('<p>Your IP : '+ipaddr+' is not registered with our system.</p>');
+						res.write(data);
+						res.end();
+			  		});
+			}
+		});
+	}
 }).listen(8000);
