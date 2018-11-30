@@ -12,10 +12,10 @@ void binarystitch()
 	    ans =  p2;
 	    return;
 	}
+
 	ll phf = (p1+p2)/2,sum=0,count=0;
 	for(ll i=0;i<n;i++)
-	{
-		ll rem = phf%b[i];
+	{ 
 		if(p[i]<phf)
 			sum += a[i];
 		else if (p[i]==phf)
@@ -25,6 +25,7 @@ void binarystitch()
 		}
 		else
 		{
+			ll rem = phf%b[i];
 			if(rem == 0)
 			{
 				count++;
