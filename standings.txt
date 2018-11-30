@@ -1,3 +1,4 @@
 Rank	           Username	 A	 B	 C	 D	Total
 
 1	WeBugINC.           	150	50 	200	100	500
+2  	killbotXD           	150	50 	0  	0  	200

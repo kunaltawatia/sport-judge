@@ -58,11 +58,12 @@ http.createServer(function (req, res)
 		var form = new formidable.IncomingForm();
 		form.parse(req,function (err, fields, files) 
 		{
-			exec('./reguser '+fields.handler+ ' '+ipaddr);
+			exec('./reguser '+fields.handler+ ' '+ipaddr,(err,stdout,stderr)=>{
 			res.writeHead(302, {
 				'Content-Type': 'text/plain',
 				'Location': '/'});
 			res.end();
+			});
 		});
 	}
 	else
@@ -74,7 +75,7 @@ http.createServer(function (req, res)
 			if(isuser)
 			{
 				req.user = isuser;
-				//console.log(isuser);
+				console.log(isuser);
 				if(page == './')
 			  		fs.readFile('main.html',function(err,data)
 			  		{
@@ -162,7 +163,7 @@ http.createServer(function (req, res)
 			}
 			else
 			{
-				//console.log(ipaddr);
+				console.log(ipaddr);
 				fs.readFile('newuser.html',function(err,data){
 			  			if (err) 
 						{
