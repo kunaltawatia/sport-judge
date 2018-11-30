@@ -3,17 +3,20 @@ using namespace std;
 typedef long long ll;
 ll popcount(ll n)
 {
-	ll ans=0;
+	ll count=0;
 	while(n)
 	{
-		ans+=n%2;
-		n /=2;
+		if(n%2)
+		count++;
+		n /= 2;
 	}
-	return ans;
+	return count;
 }
 int main()
 {
 	ll n;
 	cin>>n;
-	cout<<pow(2,popcount(n));
+	ll i= popcount(n);
+	ll ans = 1 << i;
+	cout<<ans<<endl;
 }
